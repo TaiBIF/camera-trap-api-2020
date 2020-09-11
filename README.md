@@ -14,7 +14,33 @@
   <img src="https://flat.badgen.net/github/license/TaiBIF/camera-trap-api" />
 </p>
 
-## Setup the develop environment
+## Setup the develop environment with docker-compose
+
+docker-compose for development contains:
+
+- server
+- redis
+- mongo
+- mongo-express (mongo client)
+
+### 1. perpare env
+create **.env** file
+
+```bash
+$ cp dotenv.sample .env
+```
+### 2. docker build
+
+```bash
+$ docker-compose build
+```
+### 3. run service
+
+```bash
+$ docker-compose up
+```
+
+## Setup the develop environment with npm
 ### 1. Clone repository
 ```bash
 # host
