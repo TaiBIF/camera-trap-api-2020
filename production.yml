@@ -54,7 +54,7 @@ services:
       - 8888:8888
     volumes:
       - ./scripts/nginx:/etc/nginx/conf.d
-      - ../ct-volumes/dist:/usr/share/nginx/dist
+      - ${CT_FRONTEND_DIST}:/usr/share/nginx/dist
       - ../ct-volumes/logs/nginx:/var/log/nginx
     networks:
       - backend
