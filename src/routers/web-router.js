@@ -160,6 +160,10 @@ apiRouter.get(
   '/projects/:projectId([a-f\\d]{24})/oversight',
   projectHandler.getProjectOversight,
 );
+apiRouter.get(
+  '/projects/:projectId([a-f\\d]{24})/oversight/index.xlsx',
+  projectHandler.getProjectOversight,
+);
 apiRouter.put(
   '/projects/:projectId([a-f\\d]{24})',
   projectHandler.updateProject,

@@ -7,7 +7,7 @@
     "precommit": "lint-staged",
     "start": "concurrently --kill-others \"./node_modules/nodemon/bin/nodemon.js src/web-starter.js --watch src\" \"./node_modules/nodemon/bin/nodemon.js src/task-worker.js --watch src\"",
     "start_prod": "concurrently --kill-others \"node src/web-starter.js\" \"node src/task-worker.js --watch src\"",
-    "lint": "eslint src/",
+    "lint": "eslint --fix src/",
     "db:init": "NODE_ENV=test node . -c; NODE_ENV=test node . -i",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha test",
     "ncu": "./node_modules/npm-check-updates/bin/ncu"
@@ -17,6 +17,11 @@
       "eslint --fix",
       "git add"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "repository": {
     "type": "git",
@@ -84,6 +89,7 @@
     "@tbif/eslint-config-base": "github:TaiBIF/eslint-base",
     "camera-trap-credentials": "github:TaiBIF/camera-trap-credentials#3f1d61d7d4ffc3f1299716369015c857c2a6d940",
     "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-vue": "^7.0.1",
     "husky": "^3.0.3",
     "lint-staged": "^9.2.1",
     "mocha": "^8.1.3",

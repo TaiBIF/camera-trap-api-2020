@@ -1,18 +1,23 @@
 module.exports = {
-  extends: ['@tbif/base'],
-  env: {
-    mocha: true,
-  },
-  settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.js'],
-      },
+    "env": {
+        "browser": true,
+        "es6": true
     },
-  },
-  rules: {
-    'object-curly-spacing': 0,
-    'func-names': 0,
-    'no-param-reassign': 0,
-  },
+    "extends": [
+        "eslint:recommended",
+        "plugin:vue/essential"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "vue"
+    ],
+    "rules": {
+    }
 };
