@@ -1,8 +1,9 @@
-﻿const UploadSessionErrorType = require('../../../models/const/upload-session-error-type');
+﻿/* eslint-env node */
+const UploadSessionErrorType = require('../../../models/const/upload-session-error-type');
 
 function CsvTimeFormatUnValid(message) {
   this.name = 'CsvTimeFormatUnValid';
-  this.message = message || 'CSV 時間格式錯誤';
+  this.message = message || '時間格式錯誤';
   this.type = UploadSessionErrorType.csvTimeFormatUnValid;
 }
 

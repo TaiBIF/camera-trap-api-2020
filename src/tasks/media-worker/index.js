@@ -24,7 +24,6 @@ module.exports = async ({ id: jobId, data: jobData }, done) => {
   )
     .where({ project: workerData.projectId })
     .where({ file: workerData.fileId });
-
   const notification = new NotificationModel({
     user,
     uploadSession,

@@ -1,4 +1,5 @@
-﻿const fs = require('fs');
+﻿/* eslint-env node */
+const fs = require('fs');
 const config = require('config');
 const moment = require('moment');
 const csvParse = require('csv-parse/lib/sync');
@@ -18,6 +19,7 @@ const extractFileByPath = require('./extractFileByPath');
 const fetchCsvFileContent = require('./fetchCsvFileContent');
 const createFileModels = require('./createFileModels');
 const uploadErrors = require('./errors');
+const xlsx = require('node-xlsx');
 
 const saveAllFileObjectWithCsv = require('./saveAllFileObjectWithCsv');
 const saveAllFileObjectWithAnnotationCsv = require('./saveAllFileObjectWithAnnotationCsv');
@@ -133,9 +135,34 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   );
   // console.log(extractedFiles);
 
-  const filesPath = fetchFiles(tempDir.name);
-  const csvFiles = filesPath.filter(elm => elm.match(/.*\.(csv)/i));
+
+
+  //count the file number for reading the sub-zip file
+  const filesPathForLen = fetchFiles(tempDir.name);
+  //logger.info(filesPathForLen.length)
+  let dirPath;
+  let filesPath;
+  let csvFiles;
+  let csvFilePath;
+
+  if (filesPathForLen.length == 1) {
+    dirPath = `${tempDir.name}/${filesPathForLen}`
+    filesPath = fetchFiles(dirPath);
+    csvFiles = filesPath.filter(elm => elm.match(/.*\.(csv|xlsx|xls)/i));
+    csvFilePath = `${dirPath}/${csvFiles[0]}`;
+
+  } else {
+    dirPath = `${tempDir.name}`
+    filesPath = fetchFiles(dirPath);
+    csvFiles = filesPath.filter(elm => elm.match(/.*\.(csv|xlsx|xls)/i));
+    csvFilePath = `${dirPath}/${csvFiles[0]}`;
+
+  }
+  //logger.info(dirPath)
+
+
   const hasCsvFile = csvFiles.length > 0;
+  logger.info(csvFiles.length);
 
   const startWorkingDate =
     workerData.workingRange !== undefined &&
@@ -151,6 +178,7 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   if (!hasCsvFile) {
     logger.info(`zip worker job. save with Files`);
     const dirname = tempDir.name;
+    logger.info(dirname)
     let files = [];
     try {
       files = await createFileModels(filesPath, dirname, project, user);
@@ -171,13 +199,28 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
     return;
   }
 
-  const csvFilePath = `${tempDir.name}/${csvFiles[0]}`;
-  const csvArray = csvParse(await fetchCsvFileContent(csvFilePath), csvOptions);
-  if (csvArray.length !== filesPath.length) {
+
+  //read csv or xlsx file into array
+  let csvArray;
+  let excelRead;
+  if(`${csvFiles[0]}`.includes('.csv')) {
+    csvArray = csvParse(await fetchCsvFileContent(csvFilePath), csvOptions);
+  } else if(`${csvFiles[0]}`.includes('.xlsx')) {
+    excelRead = xlsx.parse(fs.readFileSync(csvFilePath))
+    csvArray = excelRead[0].data
+  } else if(`${csvFiles[0]}`.includes('.xls')) {
+    excelRead = xlsx.parse(fs.readFileSync(csvFilePath))
+    csvArray = excelRead[0].data
+  } else {
+    throw new uploadErrors.ConvertFilesFailed();
+  }
+  //logger.info(csvArray)
+  
+  /*if (csvArray.length !== filesPath.length) {
     throw new uploadErrors.InconsistentQuantity(
       `CSV: ${csvArray.length - 1}, media files: ${filesPath - 1}`,
     );
-  }
+  }*/
 
   // check csv content
   const csvHeaderRow = csvArray[0];
@@ -191,6 +234,7 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   const timePattern = /20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]/;
   csvContentArray.forEach(
     ([studyAreaName, subStudyAreaName, cameraLocationName, filename, time]) => {
+      logger.info(studyAreaName, subStudyAreaName, cameraLocationName, filename, time);
       if (!filesPath.includes(filename)) {
         throw new uploadErrors.ImagesAndCsvNotMatch();
       }
@@ -205,7 +249,7 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   try {
     fileObjects = await createFileModels(
       filesPath,
-      tempDir.name,
+      dirPath,
       project,
       user,
     );

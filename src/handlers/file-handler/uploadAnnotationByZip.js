@@ -1,4 +1,5 @@
-﻿const fs = require('fs');
+﻿/* eslint-env node */
+const fs = require('fs');
 const utils = require('../../common/utils');
 const errors = require('../../models/errors');
 const FileModel = require('../../models/data/file-model');
@@ -63,6 +64,7 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
     cameraLocation,
     file: fileObject,
   });
+  //console.log(uploadSession)
 
   await uploadSession.save();
   fileObject
@@ -83,10 +85,10 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
       job.save();
     })
     .catch(e => {
-      uploadSession.state = UploadSessionState.failure;
-      uploadSession.errorType = UploadSessionErrorType.others;
-      uploadSession.errorMessage = `檔案傳送過程中毀損`;
-      uploadSession.save();
+      e.uploadSession.state = UploadSessionState.failure;
+      e.uploadSession.errorType = UploadSessionErrorType.others;
+      e.uploadSession.errorMessage = `檔案傳送過程中毀損`;
+      e.uploadSession.save();
     })
     .then(() => {
       fs.unlinkSync(file.path);

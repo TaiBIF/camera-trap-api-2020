@@ -1,4 +1,5 @@
-﻿const fs = require('fs');
+﻿/* eslint-env node */
+const fs = require('fs');
 const { keyBy } = require('lodash');
 const csvParse = require('csv-parse/lib/sync');
 const Promise = require('bluebird');
@@ -22,7 +23,7 @@ const concurrency = 10;
 const fileNameIndex = 3;
 
 const fetchCsvFileContent = path =>
-  new Promise((resolve, reject) => {
+  new Promise(resolve => {
     const { encoding } = detectCharacterEncoding(fs.readFileSync(path));
     let reader;
     if (encoding === 'Big5') {
@@ -79,8 +80,8 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
   const csvObject = csvParse(await fetchCsvFileContent(file.path), {
     bom: true,
   });
-  console.log(file.path);
-  console.log(csvObject);
+  //console.log(file.path);
+  //console.log(csvObject);
 
   // check csv validate
   const timePattern = /20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]/;
@@ -89,9 +90,11 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
       [studyAreaName, subStudyAreaName, cameraLocationName, filename, time],
       index,
     ) => {
-      console.log(time.match(timePattern));
-      if (!time.match(timePattern) && index !== 0) {
+      logger.info(studyAreaName, subStudyAreaName, cameraLocationName, filename, time);
+      if (typeof(time) == "number") {
         throw new errors.Http400('時間格式錯誤，應為文字，請見教學手冊');
+      } else if (!time.match(timePattern) && index !== 0) {
+        throw new errors.Http400('時間格式錯誤，應為"YYYY-MM-DD HH:MM:SS"，請見教學手冊');
       }
     },
   );

@@ -1,3 +1,4 @@
+/* eslint-env node */
 const fs = require('fs');
 const { keyBy } = require('lodash');
 const Promise = require('bluebird');
@@ -78,7 +79,7 @@ const rawDataToObject = (excelArray, dataFields) => {
 module.exports = async (user, file, cameraLocationId, workingRange) => {
   logger.info('Start import excel');
   const type = FileType.annotationExcel;
-  console.log(file.path);
+  //console.log(file.path);
 
   const excelObjectOld = xlsx.parse(fs.readFileSync(file.path)); // Parsing a xlsx from buffer, outputs an array
   // const csvObject = csvParse(await fetchExcelFileContent(file.path), {
@@ -86,17 +87,17 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
   // });
 
   const excelObject = excelObjectOld[0].data;
-  console.log(excelObject);
   const timePattern = /20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]/;
   excelObject.forEach(
     (
       [studyAreaName, subStudyAreaName, cameraLocationName, filename, time],
       index,
     ) => {
-      // check the format of time
-
-      if (!time.match(timePattern) && index !== 0) {
+      logger.info(studyAreaName, subStudyAreaName, cameraLocationName, filename, time);
+      if (typeof(time) == "number") {
         throw new errors.Http400('時間格式錯誤，應為文字，請見教學手冊');
+      } else if (!time.match(timePattern) && index !== 0) {
+        throw new errors.Http400('時間格式錯誤，應為"YYYY-MM-DD HH:MM:SS"，請見教學手冊');
       }
     },
   );
@@ -230,7 +231,7 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
       _id: { $in: annotationIds },
       state: AnnotationState.active,
     });
-
+    //console.log(annotations)
     try {
       await Promise.resolve(annotations).map(
         annotation => {
