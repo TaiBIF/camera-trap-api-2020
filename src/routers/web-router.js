@@ -32,11 +32,7 @@ const photoHandler = require('../handlers/photo-handler');
 const statisticHandler = require('../handlers/statistic-handler');
 
 const { port, db, host } = config.taskWorker.redis;
-const redisClient = redis.createClient({
-  port,
-  db,
-  host,
-});
+const redisClient = redis.createClient({ port, db, host });
 exports.api = express.Router();
 exports.callback = express.Router();
 
@@ -66,7 +62,7 @@ class CustomRouter {
     };
   }
 
-  get(path, handler) {
+  get(path) {
     // eslint-disable-next-line prefer-rest-params
     const functions = Object.values(arguments)
       .filter((it, index) => index !== 0)
@@ -377,11 +373,11 @@ apiRouter.post('/files', fileHandler.uploadFile);
 // statistics
 const cache = apicache.options({
   debug: config.isDebug,
-  defaultDuration: '2 day',
+  defaultDuration: '5 days',
   redisClient,
 }).middleware;
 
-apiRouter.get('/statistics', statisticHandler.getStatistics, cache());
+apiRouter.get('/statistics', cache(), statisticHandler.getStatistics);
 
 apiRouter.get(
   '/statistics/county/:countyName',
