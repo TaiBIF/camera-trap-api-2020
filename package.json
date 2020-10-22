@@ -1,6 +1,6 @@
 {
-  "name": "camera-trap-api",
-  "version": "0.6.0",
+  "name": "camera-trap-api-2020",
+  "version": "0.6.1",
   "description": "Camera Trap RESTful API",
   "main": "index.js",
   "scripts": {
@@ -25,14 +25,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TaiBIF/camera-trap-api.git"
+    "url": "git+https://github.com/TaiBIF/camera-trap-api-2020.git"
   },
   "author": "",
   "private": true,
   "bugs": {
-    "url": "https://github.com/TaiBIF/camera-trap-api/issues"
+    "url": "https://github.com/TaiBIF/camera-trap-api-2020/issues"
   },
-  "homepage": "https://github.com/TaiBIF/camera-trap-api#readme",
+  "homepage": "https://github.com/TaiBIF/camera-trap-api-2020#readme",
   "dependencies": {
     "acorn": "^6.4.2",
     "apicache": "^1.5.3",
@@ -89,7 +89,7 @@
   },
   "devDependencies": {
     "@tbif/eslint-config-base": "github:TaiBIF/eslint-base",
-    "camera-trap-credentials": "github:TaiBIF/camera-trap-credentials#f23cbc86c66ac8fe35391925fba70289ba2292ab",
+    "camera-trap-credentials": "github:TaiBIF/camera-trap-credentials#e834c166f9697a2f507c37255dfce1408ce8dd60",
     "eslint-plugin-mocha": "^5.3.0",
     "eslint-plugin-vue": "^7.0.1",
     "husky": "^3.0.3",
