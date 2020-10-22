@@ -1,21 +1,24 @@
-#LABEL creator="rwu823@gmail.com"
-#LABEL maintainer1="cjk.halodule@gmail.com"
-#LABEL maintainer2="dcahsu@gmail.com"
-#LABEL maintainer3="kelp404@phate.org"
+# node 12, mantenance LTS start from: 2020-11-30 to 2022-04-30
+# ref: https://nodejs.org/en/about/releases/
+FROM node:12
 
-FROM phusion/baseimage:18.04-1.0.0
-WORKDIR /camera-trap-api
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    graphicsmagick  && \
+    apt-get clean
 
-RUN apt-get update && apt-get upgrade -y && apt-get -y install curl git sudo make g++ graphicsmagick imagemagick
-
-RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-RUN sudo apt-get install -y nodejs
+# imagemagick
+#                           curl git sudo make g++ graphicsmagick imagemagick
 
 COPY package.json package-lock.json ./
 COPY node_modules/camera-trap-credentials ./node_modules/camera-trap-credentials
 
-RUN npm i -D && \
-  rm -rf ~/.npm package-lock.json
+RUN npm install
+
+#RUN npm i -D && \
+#  rm -rf ~/.npm package-lock.json
+
+
+WORKDIR /camera-trap-api
 
 COPY src ./src
 COPY config ./config
