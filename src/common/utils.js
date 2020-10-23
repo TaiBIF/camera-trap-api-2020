@@ -770,7 +770,7 @@ exports.convertBufferToStream = buffer =>
     },
   });
 
-exports.getExif = source => {
+exports.getExif = (source, sourceFilePath) => {
   /*
   Get exif from the stream.
   @param source {stream.Readable}
@@ -782,19 +782,21 @@ exports.getExif = source => {
       DateTimeOriginal: '2019:03:06 10:34:56',
       ...
     }
-   */
+  */
   const ep = new exifTool.ExiftoolProcess(exifToolBin);
   return ep
     .open()
-    .then(() => ep.readMetadata(source))
+    .then(() => ep.readMetadata(sourceFilePath))
     .then(result => {
       ep.close();
+      //console.log('res', result.data[0].FileName);
       return result.data[0];
     })
     .catch(error => {
       ep.close();
       throw error;
     });
+
 };
 
 exports.addMediaConvertJob = file => {

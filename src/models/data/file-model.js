@@ -167,7 +167,6 @@ schema.method('saveWithContent', function(source, lastModified) {
   @param lastModified {Date|null} This is for the video file.
   @returns {Promise<FileModel>}
    */
-
   return new Promise((resolve, reject) => {
     let fileStat;
     if (typeof source === 'string') {
@@ -248,6 +247,9 @@ schema.method('saveWithContent', function(source, lastModified) {
                 typeof source === 'string'
                   ? fs.createReadStream(source)
                   : utils.convertBufferToStream(source),
+                typeof source === 'string'
+                  ? source
+                  : null,
               ),
             ])
               .then(
