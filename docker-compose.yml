@@ -49,10 +49,12 @@ services:
       - REDIS_HOST=redis
       - MONGO_HOST=mongo
       - MONGO_PORT=27017
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
     volumes:
       - /camera-trap-api/node_modules
       - .:/camera-trap-api
       - ../ct-volumes/tmp:/tmp
+      #- ./npm-logs:/root/.npm
     ports:
       - 3000:3000
     depends_on:
@@ -60,6 +62,8 @@ services:
       - mongo
     networks:
       - backend
+    #links:
+    #  - mongo
 networks:
   backend:
 

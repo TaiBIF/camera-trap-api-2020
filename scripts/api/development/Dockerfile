@@ -9,16 +9,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # imagemagick
 #                           curl git sudo make g++ graphicsmagick imagemagick
 
+
+WORKDIR /camera-trap-api
+
 COPY package.json package-lock.json ./
 COPY node_modules/camera-trap-credentials ./node_modules/camera-trap-credentials
 
-RUN npm install
+#RUN npm install --save-dev
 
-#RUN npm i -D && \
-#  rm -rf ~/.npm package-lock.json
+RUN npm i -D && \
+  rm -rf ~/.npm package-lock.json
 
 
-WORKDIR /camera-trap-api
+
 
 COPY src ./src
 COPY config ./config
@@ -27,5 +30,5 @@ EXPOSE 3000
 
 ENV NODE_ENV="docker"
 
-#CMD ["npm", "src/web-starter"]
+#CMD ["node", "src/web-starter"]
 CMD ["npm", "run", "start"]
