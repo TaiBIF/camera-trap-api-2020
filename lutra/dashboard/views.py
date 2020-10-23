@@ -17,6 +17,7 @@ def dashboard_json(request):
     for i in projects.find():
         _id = str(i['_id'])
         count = db['Annotations'].find({'project': ObjectId(_id)}).count()
+        #print (i['members'])
         rows.append({
             '_id': _id,
             'title': i['title'],
@@ -24,6 +25,8 @@ def dashboard_json(request):
             'principal_investigator': i.get('principalInvestigator', ''),
             'start_time': i['startTime'].strftime('%Y-%m-%d'),
             'end_time': i['endTime'].strftime('%Y-%m-%d'),
+            'areas': [str(x) for x in i['areas']],
+            'members': [str(x) for x in i['members']],
             'count': count,
         })
 
