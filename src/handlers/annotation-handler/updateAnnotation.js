@@ -65,7 +65,6 @@ module.exports = async (req, res) => {
     (await SpeciesModel.where({
       'title.zh-TW': form.speciesTitle,
     }).findOne()) || null;
-
   if (!annotation) {
     throw new errors.Http404();
   }
@@ -111,7 +110,7 @@ module.exports = async (req, res) => {
   if (req.body.tags) {
     annotation.tags = req.body.tags;
   }
-
+  annotation.time = form.changeTime;
   await annotation.save();
 
   const projectFieldsObject = keyBy(project.dataFields, '_id');
@@ -122,12 +121,14 @@ module.exports = async (req, res) => {
       id: projectFieldsObject[dataField].id,
       widgetType: projectFieldsObject[dataField].widgetType,
     },
-    value: value.text || '',
+    value: value.text,
   }));
+
 
   result.species = {
     title: { id: '', 'zh-TW': form.speciesTitle },
   };
+
 
   res.json(result);
 };
