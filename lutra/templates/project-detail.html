@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="wysiwyg"><h2>{{ item.title }}</h2></div>
+
+<div style="background-color: #eee;">
+<code>{{ item }}</code>
+</div>
+<h3>members</h3>
+<ul class="list is-disc">
+  {% for i in member_list %}
+  <li class="item">{{ i.user.name }} ({{ i.user.email }}) <span class="badge is-plain {% if i.role == 'manager' %}is-danger{% elif i.role == 'researcher' %}is-warning{% else %}is-success{% endif %}">{{ i.role }}</span> - <a href="member/{{ i.id }}/delete" onclick="javascript: return confirm('sure?')">delete</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
