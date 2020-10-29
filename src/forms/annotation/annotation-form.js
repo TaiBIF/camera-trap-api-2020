@@ -13,6 +13,7 @@ CameraLocationForm.define({
     validators: [forms.validators.length({ max: 1024 })],
   }),
   changeTime: new forms.fields.DateField(),
+  time: new forms.fields.DateField(),
   // -----
 
   speciesTitle: new forms.fields.StringField({
