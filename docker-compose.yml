@@ -62,8 +62,8 @@ services:
       - mongo
     networks:
       - backend
-    #links:
-    #  - mongo
+    links:
+      - mongo:mongo
 networks:
   backend:
 
