@@ -23,7 +23,7 @@ services:
       - ../ct-volumes/bucket:/bucket
     networks:
       - backend
-    command: [--auth]
+    #command: [--auth]
   server:
     build:
       context: .
