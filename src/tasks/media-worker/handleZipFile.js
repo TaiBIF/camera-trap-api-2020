@@ -138,8 +138,10 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
 
 
   //count the file number for reading the sub-zip file
+  //logger.info(tempDir.name)
   const filesPathForLen = fetchFiles(tempDir.name);
-  //logger.info(filesPathForLen.length)
+
+  //logger.info(filesPathForLen)
   let dirPath;
   let filesPath;
   let csvFiles;
@@ -148,6 +150,7 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   if (filesPathForLen.length == 1) {
     dirPath = `${tempDir.name}/${filesPathForLen}`
     filesPath = fetchFiles(dirPath);
+    //logger.info(filesPath);
     csvFiles = filesPath.filter(elm => elm.match(/.*\.(csv|xlsx|xls)/i));
     csvFilePath = `${dirPath}/${csvFiles[0]}`;
 
@@ -177,7 +180,12 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
 
   if (!hasCsvFile) {
     logger.info(`zip worker job. save with Files`);
-    const dirname = tempDir.name;
+    let dirname;
+    if(filesPathForLen.length == 1) {
+      dirname = `${tempDir.name}/${filesPathForLen}`
+    } else {
+      dirname = tempDir.name
+    }
     logger.info(dirname)
     let files = [];
     try {
@@ -214,7 +222,7 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   } else {
     throw new uploadErrors.ConvertFilesFailed();
   }
-  //logger.info(csvArray)
+  logger.info(csvArray)
   
   /*if (csvArray.length !== filesPath.length) {
     throw new uploadErrors.InconsistentQuantity(

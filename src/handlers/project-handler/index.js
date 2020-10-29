@@ -1,4 +1,4 @@
-const config = require('config');
+//const config = require('config');
 const bluebird = require('bluebird');
 const moment = require('moment');
 const mongoose = require('mongoose');
@@ -31,6 +31,8 @@ const getProjectDwca = require('./getProjectDwcArchive');
 const getProject = require('./getProject');
 const getProjectOversight = require('./getProjectOversight');
 const AnnotationModel = require('../../models/data/annotation-model');
+const xlsx = require('node-xlsx');
+const logger = require('../../logger');
 
 exports.getProjects = auth(UserPermission.all(), async (req, res) => {
   /*
@@ -330,6 +332,8 @@ exports.addProject = auth(UserPermission.all(), (req, res) => {
     })
     .then(([project, projectAreas, coverImageFile, speciesList]) => {
       /*
+
+      console.log(projectAreas);
       - Add default species into the project.
       - Add coverImageFile.project and save it.
       @param project {ProjectModel}
@@ -337,6 +341,7 @@ exports.addProject = auth(UserPermission.all(), (req, res) => {
       @returns {Promises<[{ProjectModel}]>}
        */
       // Add default species.
+      logger.info(projectAreas);
       const speciesReference = speciesList.map((species, index) => {
         species.dataCount += 1;
         species.save();
@@ -593,7 +598,6 @@ exports.getProjectExampleCsv = auth(UserPermission.all(), (req, res) =>
           if (dataField.systemCode === DataFieldSystemCode.studyArea) {
             data[0].push('子樣區');
           }
-
           // data row
           switch (dataField.systemCode) {
             case DataFieldSystemCode.studyArea:
@@ -626,11 +630,11 @@ exports.getProjectExampleCsv = auth(UserPermission.all(), (req, res) =>
             case DataFieldSystemCode.fileName:
               data[1].push('IMG_0001.jpg');
               break;
-            case DataFieldSystemCode.time:
-              data[1].push(
-                utils.stringifyTimeToCSV(new Date(), config.defaultTimezone),
-              );
+            case DataFieldSystemCode.time: {
+              const t = moment(new Date(), 'Asia/Taipei').format('YYYY-MM-DD HH:mm:ss');
+              data[1].push(t);
               break;
+            }
             case DataFieldSystemCode.species:
               data[1].push(projectSpecies.species.title['zh-TW']);
               break;
@@ -642,10 +646,7 @@ exports.getProjectExampleCsv = auth(UserPermission.all(), (req, res) =>
                   break;
                 case DataFieldWidgetType.time:
                   data[1].push(
-                    utils.stringifyTimeToCSV(
-                      new Date(),
-                      config.defaultTimezone,
-                    ),
+                    moment(new Date(), 'Asia/Taipei').format('YYYY-MM-DD HH:mm:ss')
                   );
                   break;
                 default:
@@ -653,13 +654,21 @@ exports.getProjectExampleCsv = auth(UserPermission.all(), (req, res) =>
               }
           }
         });
-        return utils.csvStringifyAsync(data);
+        //console.log(data);
+        return data;
       },
     )
     .then(csv => {
-      res.setHeader('Content-disposition', 'attachment; filename=example.csv');
-      res.contentType('csv');
-      res.send(csv);
+      //console.log(csv);
+
+      res.setHeader('Content-disposition', 'attachment; filename=example.xlsx');
+      res.setHeader(
+        'Content-type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8',
+      );
+      const buffer = xlsx.build([{ name: 'example', data: csv }]);
+      res.end(buffer);
+
     }),
 );
 

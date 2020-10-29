@@ -165,7 +165,7 @@ apiRouter.put(
   projectHandler.updateProject,
 );
 apiRouter.get(
-  '/projects/:projectId([a-f\\d]{24})/example.csv',
+  '/projects/:projectId([a-f\\d]{24})/example.xlsx',
   projectHandler.getProjectExampleCsv,
 );
 apiRouter.post(
