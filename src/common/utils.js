@@ -786,7 +786,7 @@ exports.getExif = (source, sourceFilePath) => {
   const ep = new exifTool.ExiftoolProcess(exifToolBin);
   return ep
     .open()
-    .then(() => ep.readMetadata(sourceFilePath))
+    .then(() => ep.readMetadata((sourceFilePath) ? sourceFilePath : source))
     .then(result => {
       ep.close();
       //console.log('res', result.data[0].FileName);
