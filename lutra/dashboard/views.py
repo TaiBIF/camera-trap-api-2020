@@ -77,6 +77,7 @@ def project_detail(request, id):
     c_user = db['Users']
     c_study_areas = db['StudyAreas']
     c_camera_locations = db['CameraLocations']
+    c_file = db['Files']
 
     project = c_proj.find_one({'_id': ObjectId(id)})
     study_areas = c_study_areas.find({'project': ObjectId(id)})
@@ -85,17 +86,30 @@ def project_detail(request, id):
     study_area_list = []
     for i in study_areas:
         sa_count = 0
+        sa_count_has_file = 0
         camera_location_list = c_camera_locations.find({'project': ObjectId(id), 'studyArea': ObjectId(i['_id'])})
         cl_list = []
         for j in camera_location_list:
-            count = db['Annotations'].find({'project': ObjectId(id), 'studyArea': ObjectId(i['_id']), 'cameraLocation': ObjectId(j['_id'])}).count()
+            args = {
+                'project': ObjectId(id),
+                'studyArea': ObjectId(i['_id']),
+                'cameraLocation': ObjectId(j['_id']),
+            }
+            count = db['Annotations'].find(args).count()
+            args_has_file = args
+            args_has_file['file'] = {'$exists': True }
+            count_has_file = db['Annotations'].find(args_has_file).count()
+
             sa_count += count
-            cl_list.append({'name': j['name'], 'id':j['_id'], 'count': count})
+            sa_count_has_file += count_has_file
+
+            cl_list.append({'name': j['name'], 'id':j['_id'], 'count': count, 'count_has_file': count_has_file})
         study_area_list.append({
             'id': i['_id'],
             'name': i['title']['zh-TW'],
             'cl_list': cl_list,
             'count': sa_count,
+            'count_has_file': sa_count_has_file,
         })
 
 
