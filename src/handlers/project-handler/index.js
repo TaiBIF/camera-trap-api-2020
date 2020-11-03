@@ -73,7 +73,6 @@ exports.getProjects = auth(UserPermission.all(), async (req, res) => {
     // General accounts just fetch hims' projects. (Administrator fetch all projects.)
     query.where({ 'members.user': req.user._id });
   }
-
   if (form.species && form.species.length > 0) {
     const projects = [];
     await query.map(async projectModel => {

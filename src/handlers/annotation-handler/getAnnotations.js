@@ -16,6 +16,8 @@ const StudyAreaState = require('../../models/const/study-area-state');
 const ProjectTripModel = require('../../models/data/project-trip-model');
 const AnnotationsSearchForm = require('../../forms/annotation/annotations-search-form');
 const Helpers = require('../../common/helpers.js');
+const config = require('config');
+const logger = require('../../logger');
 
 const fetchDataField = async fields => {
   const dataFields = await DataFieldModel.where({
@@ -142,6 +144,7 @@ const getAnnotationQuery = (
   dataFields,
   synonymSpeciesIds,
 ) => {
+  logger.info(synonymSpeciesIds)
   const query = AnnotationModel.where({ state: AnnotationState.active })
     .populate('species')
     .populate('file')
@@ -234,6 +237,7 @@ const getAnnotationQueryByProductTripId = (
   dataFields,
   synonymSpeciesIds,
 ) => {
+  logger.info(synonymSpeciesIds)
   const query = AnnotationModel.find({ state: AnnotationState.active })
     .find({ $or: ProductTripDatas })
     .populate('species')
@@ -591,6 +595,7 @@ module.exports = async (req, res) => {
     }
 
     annotationDocs.forEach(a => {
+      a.time.setUTCMinutes(a.time.getUTCMinutes() + config.defaultTimezone);
       const t = moment(a.time, 'Asia/Taipei').format('YYYY-MM-DD HH:mm:ss');
       const annotationFields = keyBy(a.fields, 'dataField');
       const rowData = [];

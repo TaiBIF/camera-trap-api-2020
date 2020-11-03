@@ -140,14 +140,14 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   //count the file number for reading the sub-zip file
   //logger.info(tempDir.name)
   const filesPathForLen = fetchFiles(tempDir.name);
+  const checkFolder = filesPathForLen.filter(elm => elm.match(/.*\.(csv|xlsx|xls|jpg|mp4|avi)/i));
 
-  //logger.info(filesPathForLen)
   let dirPath;
   let filesPath;
   let csvFiles;
   let csvFilePath;
 
-  if (filesPathForLen.length == 1) {
+  if (checkFolder.length == 0) {
     dirPath = `${tempDir.name}/${filesPathForLen}`
     filesPath = fetchFiles(dirPath);
     //logger.info(filesPath);
@@ -165,7 +165,7 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
 
 
   const hasCsvFile = csvFiles.length > 0;
-  logger.info(csvFiles.length);
+  //logger.info(csvFiles.length);
 
   const startWorkingDate =
     workerData.workingRange !== undefined &&
@@ -181,12 +181,12 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   if (!hasCsvFile) {
     logger.info(`zip worker job. save with Files`);
     let dirname;
-    if(filesPathForLen.length == 1) {
+    if(checkFolder.length == 0) {
       dirname = `${tempDir.name}/${filesPathForLen}`
     } else {
       dirname = tempDir.name
     }
-    logger.info(dirname)
+    //logger.info(dirname)
     let files = [];
     try {
       files = await createFileModels(filesPath, dirname, project, user);

@@ -8,6 +8,7 @@ const AnnotationState = require('../../models/const/annotation-state');
 const CameraLocationModel = require('../../models/data/camera-location-model');
 const CameraLocationState = require('../../models/const/camera-location-state');
 const DataFieldModel = require('../../models/data/data-field-model');
+const config = require('config');
 
 const fetchCameraLocations = async cameraLocationIds => {
   const cameraLocations = await CameraLocationModel.where({
@@ -176,13 +177,14 @@ module.exports = async (req, res) => {
   // res.json(
   //  new PageList(form.index, form.size, annotations.totalDocs, annotationDocs),
   // );
-  const headers = ['樣區', '相機位置', '檔名', '時間', '物種']; // TODO: other fields, consider, mix multiple project
+  const headers = ['樣區', '相機位置', '檔名', '日期時間', '物種']; // TODO: other fields, consider, mix multiple project
 
   const xlsxData = annotationDocs.map(a => {
     const rowData = [];
     rowData.push(`${a.studyArea.title['zh-TW']}`);
     rowData.push(`${a.cameraLocation.name}`);
     rowData.push(`${a.filename}`);
+    a.time.setUTCMinutes(a.time.getUTCMinutes() + config.defaultTimezone)
     const t = moment(a.time, 'Asia/Taipei').format('YYYY-MM-DD HH:mm:ss');
     rowData.push(`${t}`);
     rowData.push(`${a.species ? a.species.title['zh-TW'] : ''}`);
