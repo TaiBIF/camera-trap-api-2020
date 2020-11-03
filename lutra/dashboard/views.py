@@ -75,9 +75,30 @@ def project_detail(request, id):
     db = client['cameraTrap_prod']
     c_proj = db['Projects']
     c_user = db['Users']
+    c_study_areas = db['StudyAreas']
+    c_camera_locations = db['CameraLocations']
 
     project = c_proj.find_one({'_id': ObjectId(id)})
+    study_areas = c_study_areas.find({'project': ObjectId(id)})
     members = [{'id': str(x['user']), 'role': x['role']} for x in project['members']]
+
+    study_area_list = []
+    for i in study_areas:
+        sa_count = 0
+        camera_location_list = c_camera_locations.find({'project': ObjectId(id), 'studyArea': ObjectId(i['_id'])})
+        cl_list = []
+        for j in camera_location_list:
+            count = db['Annotations'].find({'project': ObjectId(id), 'studyArea': ObjectId(i['_id']), 'cameraLocation': ObjectId(j['_id'])}).count()
+            sa_count += count
+            cl_list.append({'name': j['name'], 'id':j['_id'], 'count': count})
+        study_area_list.append({
+            'id': i['_id'],
+            'name': i['title']['zh-TW'],
+            'cl_list': cl_list,
+            'count': sa_count,
+        })
+
+
     for i in members:
         user = c_user.find_one({'_id': ObjectId(i['id'])})
         i['user'] = user
@@ -85,7 +106,9 @@ def project_detail(request, id):
 
     return render(request, 'project-detail.html', {
         'item': project,
-        'member_list': members
+        'member_list': members,
+        'study_area_list': study_area_list,
+        'item_id': id,
     })
 
 def delete_project_member(request, project_id, user_id):
@@ -108,5 +131,28 @@ def delete_project_member(request, project_id, user_id):
     }, {
         '$set': {'members': new_members}
     }, upsert=False)
+
+    return redirect('/dashboard/project/{}/'.format(project_id))
+
+
+def delete_studyarea_annotation(request, project_id, study_area_id):
+    if not request.user.is_authenticated:
+        return redirect('/')
+
+    client = MongoClient('mongodb://mongo:27017')
+    db = client['cameraTrap_prod']
+    c_proj = db['Projects']
+    project = c_proj.find_one({'_id': ObjectId(project_id)})
+    cl = request.GET.get('camera-location', '')
+
+    args = {
+        'project': ObjectId(project_id),
+        'studyArea': ObjectId(study_area_id),
+    }
+    if cl:
+        args['cameraLocation'] = ObjectId(cl)
+
+    annotations = db['Annotations'].remove(args)
+
 
     return redirect('/dashboard/project/{}/'.format(project_id))
