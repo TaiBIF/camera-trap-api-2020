@@ -4,11 +4,11 @@
 <h1>Projects</h1>
 <table class="table is-border is-stripe">
   <thead>
-    <tr><th>Title</th><th>funder</th><th>PI</th><th>count</th></tr>
+    <tr><th>Title</th><th>funder</th><th>PI</th><th>count</th><th>files</th><th>樣區數</th><th>相機位置數</th></tr>
       </thead>
   <tbody>
     {% for i in items %}
-    <tr><td><a href="{% url 'project' i.id %}" class="is-link text">{{ i.obj.title }}</a></td><td>{{ i.obj.funder }}</td><td>{{ i.obj.principalInvestigator}}</td><td>{{ i.num_of_annotations }}</td></tr>
+    <tr><td><a href="{% url 'project' i.id %}" class="is-link text">{{ i.obj.title }}</a></td><td>{{ i.obj.funder }}</td><td>{{ i.obj.principalInvestigator}}</td><td>{{ i.num_of_annotations }}</td><td>{{ i.num_of_annotations_with_file }}</td><td>{{ i.num_of_study_area }}</td><td>{{ i.num_of_camera_location }}</td></tr>
     {% endfor %}
   </tbody>
 </table>

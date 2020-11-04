@@ -13,16 +13,24 @@ def dashboard(request):
     client = MongoClient('mongodb://mongo:27017')
     db = client['cameraTrap_prod']
     projects = db['Projects']
+    c_study_areas = db['StudyAreas']
+    c_camera_locations = db['CameraLocations']
 
     project_list = projects.find();
     results = []
     for i in project_list:
         _id = str(i['_id'])
         count = db['Annotations'].find({'project': ObjectId(_id)}).count()
+        count_file = db['Annotations'].find({'project': ObjectId(_id), 'file': {'$exists': True}}).count()
+        count_sa = c_study_areas.find({'project': ObjectId(_id)}).count()
+        count_cl = c_camera_locations.find({'project': ObjectId(_id)}).count()
         results.append({
             'obj': i,
             'id': _id,
             'num_of_annotations': count,
+            'num_of_annotations_with_file': count_file,
+            'num_of_study_area': count_sa,
+            'num_of_camera_location': count_cl,
         })
     contaxt = {
         'items': results,
