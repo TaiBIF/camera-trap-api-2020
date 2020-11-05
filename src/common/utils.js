@@ -54,7 +54,7 @@ exports.connectDatabase = (autoIndex = false) => {
   }
   mongoose.connect(config.database.url, {
     useNewUrlParser: true,
-    connectTimeoutMS: 1000,
+    connectTimeoutMS: 5000,
     reconnectTries: Number.MAX_VALUE,
     reconnectInterval: 500,
     autoIndex,
