@@ -206,7 +206,7 @@ schema.method('saveWithContent', function(source, lastModified) {
             Promise.all([
               utils.uploadToS3({
                 Key: `${
-                  config.s3.folders.annotationImages
+                  config.s3.folders.annotationOriginalImages
                 }/${this.getFilename()}`,
                 Body:
                   typeof source === 'string'
@@ -214,6 +214,34 @@ schema.method('saveWithContent', function(source, lastModified) {
                     : source,
                 ACL: 'public-read',
                 StorageClass: 'STANDARD_IA',
+              }),
+              utils.resizeImageAndUploadToS3({
+                buffer:
+                  typeof source === 'string'
+                    ? fs.createReadStream(source)
+                    : source,
+                filename: `${
+                  config.s3.folders.annotationImages
+                }/${this.getFilename()}`,
+                format: this.getExtensionName(),
+                width: 1280,
+                height: 1280,
+                isFillUp: false,
+                isPublic: process.env.NODE_ENV === 'prod', // @todo temporary for staging.
+              }),
+              utils.resizeImageAndUploadToS3({
+                buffer:
+                  typeof source === 'string'
+                    ? fs.createReadStream(source)
+                    : source,
+                filename: `${
+                  config.s3.folders.annotationThumbnailImages
+                }/${this.getFilename()}`,
+                format: this.getExtensionName(),
+                width: 640,
+                height: 640,
+                isFillUp: false,
+                isPublic: process.env.NODE_ENV === 'prod', // @todo temporary for staging.
               }),
               utils.getExif(
                 typeof source === 'string'
@@ -227,6 +255,8 @@ schema.method('saveWithContent', function(source, lastModified) {
               .then(
                 ([
                   originalBuffer,
+                  middleImageUploadResult,
+                  smallImageUploadResult,
                   exifData,
                 ]) => {
                   let exif;
@@ -254,9 +284,9 @@ schema.method('saveWithContent', function(source, lastModified) {
                     });
                     this.exif = exif;
                   }
-                  //this.size +=
-                  //  middleImageUploadResult.buffer.length +
-                  //  smallImageUploadResult.buffer.length;
+                  this.size +=
+                    middleImageUploadResult.buffer.length +
+                    smallImageUploadResult.buffer.length;
                   return Promise.all([this.save(), exif ? exif.save() : null]);
                 },
               )
