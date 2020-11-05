@@ -5,7 +5,6 @@ const Promise = require('bluebird');
 const moment = require('moment-timezone');
 // const detectCharacterEncoding = require('detect-character-encoding');
 // const iconv = require('iconv-lite');
-const xlsx = require('node-xlsx');
 const errors = require('../../models/errors');
 const FileModel = require('../../models/data/file-model');
 const FileType = require('../../models/const/file-type');
@@ -18,6 +17,7 @@ const fetchCameraLocation = require('./fetchCameraLocation');
 const DataFieldModel = require('../../models/data/data-field-model');
 const SpeciesModel = require('../../models/data/species-model');
 const logger = require('../../logger');
+const XLSX = require('xlsx')
 
 const concurrency = 10;
 const fileNameIndex = 3;
@@ -81,12 +81,20 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
   const type = FileType.annotationExcel;
   //console.log(file.path);
 
-  const excelObjectOld = xlsx.parse(fs.readFileSync(file.path)); // Parsing a xlsx from buffer, outputs an array
-  // const csvObject = csvParse(await fetchExcelFileContent(file.path), {
-  //  bom: true,
-  // });
-
+  // old method for importing xlsx (used node-xlsx)
+  /*const excelObjectOld = xlsx.parse(fs.readFileSync(file.path)); // Parsing a xlsx from buffer, outputs an array
   const excelObject = excelObjectOld[0].data;
+  logger.info(`excelObject`)
+  logger.info(JSON.stringify(excelObject))
+  logger.info(excelObject)*/
+
+  var wb = XLSX.readFile(file.path)
+  var sheet_name_list = wb.SheetNames;
+  var excelObject = XLSX.utils.sheet_to_json(wb.Sheets[sheet_name_list[0]], {raw:false, header:1})
+  logger.info(`excelObject`)
+  logger.info(JSON.stringify(excelObject))
+  logger.info(excelObject)
+
   const timePattern = /20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]/;
   excelObject.forEach(
     (
@@ -94,7 +102,7 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
       index,
     ) => {
       logger.info(studyAreaName, subStudyAreaName, cameraLocationName, filename, time);
-      logger.info(typeof(time));
+      //logger.info(time)
       if (typeof(time) == "number") {
         throw new errors.Http400('時間格式錯誤，應為文字，請見教學手冊');
       } else if (!time.match(timePattern) && index !== 0) {
@@ -144,7 +152,6 @@ module.exports = async (user, file, cameraLocationId, workingRange) => {
 
   // run the rawDataToObject function(above) to generate the rawData...
   const excelContentRows = rawDataToObject(excelObject, dataFields);
-
   if (annotationIndex < 0) {
     const startWorkingDate =
       workingRange !== undefined && workingRange.split(',').length === 2

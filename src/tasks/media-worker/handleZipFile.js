@@ -19,7 +19,7 @@ const extractFileByPath = require('./extractFileByPath');
 const fetchCsvFileContent = require('./fetchCsvFileContent');
 const createFileModels = require('./createFileModels');
 const uploadErrors = require('./errors');
-const xlsx = require('node-xlsx');
+const XLSX = require('xlsx')
 
 const saveAllFileObjectWithCsv = require('./saveAllFileObjectWithCsv');
 const saveAllFileObjectWithAnnotationCsv = require('./saveAllFileObjectWithAnnotationCsv');
@@ -211,14 +211,18 @@ module.exports = async (workerData, uploadSession, user, tempDir, tempFile) => {
   //read csv or xlsx file into array
   let csvArray;
   let excelRead;
+  let sheet_name_list;
   if(`${csvFiles[0]}`.includes('.csv')) {
     csvArray = csvParse(await fetchCsvFileContent(csvFilePath), csvOptions);
   } else if(`${csvFiles[0]}`.includes('.xlsx')) {
-    excelRead = xlsx.parse(fs.readFileSync(csvFilePath))
-    csvArray = excelRead[0].data
+    excelRead = XLSX.readFile(csvFilePath)
+    sheet_name_list = excelRead.SheetNames
+    csvArray = XLSX.utils.sheet_to_json(excelRead.Sheets[sheet_name_list[0]], {raw:false, header:1})
   } else if(`${csvFiles[0]}`.includes('.xls')) {
-    excelRead = xlsx.parse(fs.readFileSync(csvFilePath))
-    csvArray = excelRead[0].data
+    excelRead = XLSX.readFile(csvFilePath)
+    sheet_name_list = excelRead.SheetNames
+    csvArray = XLSX.utils.sheet_to_json(excelRead.Sheets[sheet_name_list[0]], {raw:false, header:1})
+
   } else {
     throw new uploadErrors.ConvertFilesFailed();
   }
