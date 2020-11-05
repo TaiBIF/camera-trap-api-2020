@@ -95,7 +95,7 @@ module.exports = createServer => {
               if (authenticationError) {
                 return callback(false, 500);
               }
-              authorization([UserPermission.administrator], () =>
+              authorization([UserPermission.guest], () =>
                 callback(true),
               )(info.req, null, authorizationError =>
                 callback(false, authorizationError.status || 500),
@@ -110,7 +110,7 @@ module.exports = createServer => {
 
     app.use(
       '/admin/kue',
-      authorization([UserPermission.administrator], kueAdminPanel),
+      authorization([UserPermission.guest], kueAdminPanel),
     );
   }
 
