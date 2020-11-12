@@ -178,3 +178,18 @@ def delete_studyarea_annotation(request, project_id, study_area_id):
 
 
     return redirect('/dashboard/project/{}/'.format(project_id))
+
+def delete_studyarea(request, project_id, study_area_id):
+    if not request.user.is_authenticated:
+        return redirect('/')
+
+    client = MongoClient('mongodb://mongo:27017')
+    db = client['cameraTrap_prod']
+    c_proj = db['Projects']
+    #project = c_proj.find_one({'_id': ObjectId(project_id)})
+
+    sa = db['StudyAreas'].remove({
+        'project': ObjectId(project_id),
+        '_id': ObjectId(study_area_id)})
+
+    return redirect('/dashboard/project/{}/'.format(project_id))
