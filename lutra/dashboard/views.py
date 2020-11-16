@@ -1,5 +1,6 @@
 import json
 import pprint
+from datetime import datetime, timedelta
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -192,4 +193,95 @@ def delete_studyarea(request, project_id, study_area_id):
         'project': ObjectId(project_id),
         '_id': ObjectId(study_area_id)})
 
+    return redirect('/dashboard/project/{}/'.format(project_id))
+
+
+def sh(request, project_id, index_id):
+    import pandas as pd
+    client = MongoClient('mongodb://mongo:27017')
+    db = client['cameraTrap_prod']
+    c_proj = db['Projects']
+    c_sa = db['StudyAreas']
+    c_cl = db['CameraLocations']
+
+    f = open('./scripts/cam-loc-id.txt', 'r')
+    tmp = f.read()
+    cl_id_map = {}
+    for i in tmp.split('|'):
+        x = i.split(',')
+        cl_id_map[x[0]] = x[1]
+    #print (ct_map)
+
+    LIN_AREA_LIST = ['台東處','屏東處','東勢處','花蓮處','南投處','嘉義處','新竹處','羅東處']
+    LIN_AREA_ID = [
+        '5d19e2a7bad3f6ac15d9ff2c',
+        '5d19e25abad3f61536d9fd9f',
+        '5d19e1b9bad3f67f67d9facf',
+        '5d19e304bad3f65b13da015e',
+        '5d19e1ccbad3f64504d9fb32',
+        '5d19e241bad3f66c46d9fcea',
+        '5d19e16cbad3f64359d9f9d4',
+        '5d19e12bbad3f6ef77d9f958'
+    ]
+    sa_count = 0
+    for i in LIN_AREA_LIST[index_id:index_id+1]:
+        sa_count += 1
+        df = pd.read_excel('./scripts/{}.xlsx'.format(i))
+        #df = df[0:3]
+
+        for j in df.iterrows():
+            sa = j[1][0]
+            ssa = j[1][1] if not pd.isna(j[1][1]) else ''
+            cl = j[1][2]
+            fn = j[1][3]
+            dt = j[1][4]
+            dt_str = str(dt)
+            sp = j[1][5] if not pd.isna(j[1][5]) else ''
+            mm = j[1][6] if not pd.isna(j[1][6]) else ''
+
+            x = {
+                'rawData': [sa, ssa, cl, fn, dt_str, sp, mm],
+                'failures': [],
+                'createTime': datetime.utcnow(),
+                'updateTime': datetime.utcnow(),
+                'tags': [],
+                'fields': [{
+                    'dataField': ObjectId('5fa0cc0677db0600515f1093')
+                }, {
+                    'dataField': ObjectId('5fa0cc0677db0600515f1094'),
+                    'value': {
+                        'text': cl
+                    }
+                }, {
+                    'dataField': ObjectId('5fa0cc0677db0600515f1095'),
+                    'value': {
+                        'text': fn
+                    }
+                }, {
+                    'dataField': ObjectId('5fa0cc0677db0600515f1096'),
+                    'value': {
+                        'text': dt_str
+                    }
+                }, {
+                    'dataField': ObjectId('5fa0cc0677db0600515f1097'),
+                    'value': {
+                        'text': sp
+                    }
+                }],
+                'project': ObjectId('5ceb7c2ff974a98437bb3843'), #ObjectId('5fa0cc6e8a90a70037d0130c'),
+                'studyArea': ObjectId(LIN_AREA_ID[index_id]), #ObjectId('5fa0cc798a90a70037d0131d')
+                'cameraLocation': ObjectId(cl_id_map[cl]), #ObjectId('5fa0d0a58a90a70037d01336')
+                'filename': fn,
+                'time': dt + timedelta(hours=-8),
+                #'file': ObjectId('5fa36705dd092e004050036c'),
+                'state': 'active',
+                #'species': ObjectId('5fa0cc0677db0600515f10b1'),
+                'totalMilliseconds': (dt.hour * 3600 * 1000) + (dt.minute * 60 * 1000) + (dt.second * 1000),
+                '__v': 0,
+                'importNote': '201117',
+                'speciesName': sp
+            }
+            #print (dt.hour, dt.minute, dt.second)
+            
+            db['Annotations'].insert(x)
     return redirect('/dashboard/project/{}/'.format(project_id))

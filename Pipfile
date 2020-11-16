@@ -9,6 +9,8 @@ verify_ssl = true
 django = "*"
 django-environ = "*"
 pymongo = "*"
+pandas = "*"
+xlrd = "*"
 
 [requires]
 python_version = "3.8"
