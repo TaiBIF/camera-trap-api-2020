@@ -6,6 +6,11 @@
 <div style="background-color: #eee;">
 <code>{{ item }}</code>
 </div>
+
+<div style="background-color: #def;">
+<code>{% for i in study_area_list %}{% for j in i.cl_list %}{{j.name}},{{j.id}}|{% endfor %}{% endfor %}</code>
+</div>
+
 <h3>members</h3>
 <ul class="list is-disc">
   {% for i in member_list %}
