@@ -1,4 +1,4 @@
-const http = require('http');
+const https = require('https');
 const util = require('util');
 const config = require('config');
 const cors = require('cors');
@@ -19,16 +19,23 @@ const UserPermission = require('./models/const/user-permission');
 const webRouter = require('./routers/web-router');
 const logRequest = require('./middlewares/logRequest');
 const logToDatabase = require('./middlewares/logToDatabase');
+const fs = require('fs')
+const credentials = {
+  key: fs.readFileSync('key.pem', 'utf8'),
+  cert: fs.readFileSync('cert.pem', 'utf8'),
+  ca: fs.readFileSync('csr.pem', 'utf8'),
+};
 
 module.exports = createServer => {
   /*
   @param createServer {Boolean}
   @return {express.Application|http.Server}
-   */
+  */
+
   const app = express();
   let server;
   if (createServer) {
-    server = http.createServer(app);
+    server = https.createServer(credentials, app);
   }
 
   app.use(zip());
