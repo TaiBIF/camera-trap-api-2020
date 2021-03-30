@@ -1,6 +1,6 @@
 # node 12, mantenance LTS start from: 2020-11-30 to 2022-04-30
 # ref: https://nodejs.org/en/about/releases/
-FROM node:12
+FROM node:14.16.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     graphicsmagick  && \
