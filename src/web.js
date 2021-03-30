@@ -24,6 +24,7 @@ const credentials = {
   key: fs.readFileSync('key.pem', 'utf8'),
   cert: fs.readFileSync('cert.pem', 'utf8'),
   ca: fs.readFileSync('csr.pem', 'utf8'),
+  secureProtocol: 'TLSv1_2_method',
 };
 
 module.exports = createServer => {
